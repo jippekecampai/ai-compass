@@ -129,30 +129,38 @@ export const calculateAssessmentResult = (profile: ProfileForm, answers: Answers
   const adoptionScore = domainScores.find((item) => item.key === "adoption")?.score ?? 0;
   const dataScore = domainScores.find((item) => item.key === "data")?.score ?? 0;
 
-  const copilotFit =
-    selectedTools.includes("microsoft-copilot") || profile.microsoftContext.toLowerCase().includes("microsoft")
-      ? governanceScore >= 50 && securityScore >= 50 && useCaseScore >= 50
+  const hasMicrosoftSignal =
+    selectedTools.includes("microsoft-copilot") || profile.microsoftContext.toLowerCase().includes("microsoft");
+
+  const copilotFit = hasMicrosoftSignal
+    ? governanceScore >= 50 && securityScore >= 50 && useCaseScore >= 50
+      ? {
+          fit: "high" as const,
+          summary:
+            "Microsoft Copilot sluit goed aan: er is voldoende basis om van losse prompts naar productiviteitswinst en teamadoptie te bewegen.",
+        }
+      : governanceScore < 35 || securityScore < 35 || useCaseScore < 35 || dataScore < 35
         ? {
-            fit: "high" as const,
+            fit: "low" as const,
             summary:
-              "Microsoft Copilot sluit goed aan: er is voldoende basis om van losse prompts naar productiviteitswinst en teamadoptie te bewegen.",
+              "Copilot is nu waarschijnlijk nog te vroeg; eerst fundament, kaders en prioritaire use cases aanscherpen voorkomt teleurstellende adoptie.",
           }
         : {
             fit: "medium" as const,
             summary:
               "Microsoft Copilot kan interessant zijn, maar het meeste rendement ontstaat pas zodra governance, security en use cases scherper zijn uitgewerkt.",
           }
-      : governanceScore >= 60 && useCaseScore >= 60 && adoptionScore >= 55
-        ? {
-            fit: "medium" as const,
-            summary:
-              "Copilot lijkt een logische vervolgstap zodra jullie Microsoft-context en prioritaire use cases concreet zijn gemaakt.",
-          }
-        : {
-            fit: "low" as const,
-            summary:
-              "De grootste winst zit nu eerst in fundament en focus; een Copilot-traject is waarschijnlijk sterker zodra beleid, adoptie en data verder zijn aangescherpt.",
-          };
+    : governanceScore >= 60 && useCaseScore >= 60 && adoptionScore >= 55
+      ? {
+          fit: "medium" as const,
+          summary:
+            "Copilot lijkt een logische vervolgstap zodra jullie Microsoft-context en prioritaire use cases concreet zijn gemaakt.",
+        }
+      : {
+          fit: "low" as const,
+          summary:
+            "De grootste winst zit nu eerst in fundament en focus; een Copilot-traject is waarschijnlijk sterker zodra beleid, adoptie en data verder zijn aangescherpt.",
+        };
 
   const recommendations: Recommendation[] = [
     {
