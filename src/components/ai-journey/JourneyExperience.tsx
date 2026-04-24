@@ -186,8 +186,8 @@ const JourneyQuestion = ({
   );
 };
 
-export const JourneyExperience = () => {
-  const [phase, setPhase] = useState<"intro" | "profile" | "journey" | "results">("intro");
+export const JourneyExperience = ({ initialPhase = "intro" }: { initialPhase?: "intro" | "profile" | "journey" | "results" }) => {
+  const [phase, setPhase] = useState<"intro" | "profile" | "journey" | "results">(initialPhase);
   const [activeStop, setActiveStop] = useState(0);
   const [profile, setProfile] = useState<ProfileForm>(defaultProfile);
   const [answers, setAnswers] = useState<AnswersState>(initialAnswers);
